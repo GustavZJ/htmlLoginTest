@@ -33,13 +33,13 @@ try {
         $credentials = get_htpasswd_credentials($htpasswd_file);
 
         // Check user credentials
-        if (isset($credentials['uploader']) && password_verify($password, $credentials['uploader'])) {
-            $_SESSION['role'] = 'uploader';
+        if (isset($credentials['user']) && password_verify($password, $credentials['user'])) {
+            $_SESSION['role'] = 'user';
             header('Location: /main/index.html');
             exit;
         }
         // Check admin credentials
-        elseif (isset($credentials['admin']) && password_verify($password, $credentials['uploader'])) {
+        elseif (isset($credentials['admin']) && password_verify($password, $credentials['admin'])) {
             $_SESSION['role'] = 'admin';
             header('Location: /main/index.html');
             exit;
