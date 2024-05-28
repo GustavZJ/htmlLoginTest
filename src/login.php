@@ -28,7 +28,7 @@ function get_htpasswd_credentials($file_path) {
 function verify_apr1_md5_password($password, $hashed_password) {
     $passParts = explode('$', $hashed_password);
     $salt = $passParts[2];
-    $hashed = crypt($password, $salt);
+    $hashed = crypt_apr1_md5($password, $salt);
     echo 'Passparts: '.print_r($passParts).'<br>';
     echo 'Password: '.$password.'<br>';
     echo 'Salt: '.$salt.'<br>';
