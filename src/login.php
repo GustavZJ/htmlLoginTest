@@ -25,6 +25,7 @@ $htpasswd_file = '/etc/apache2/.temppasswd';
 
 $password = $_POST['password'];
 $credentials = get_htpasswd_credentials($htpasswd_file);
+echo $credentials;
 
 $user_password_hash = isset($credentials['user']) ? $credentials['user'] : null;
 $admin_password_hash = isset($credentials['admin']) ? $credentials['admin'] : null;
