@@ -39,8 +39,82 @@ function verify_apr1_md5_password($password, $hashed_password) {
 
 // Your custom function to generate apr1-md5 hash
 function crypt_apr1_md5($password, $salt) {
-    $salt = '$apr1$' . $salt . '$';
-    return crypt($password, $salt);
+    $magic = '$apr1$';
+    $max = strlen($password);
+    $mix = '';
+    $mLen = strlen($magic);
+    $sLen = strlen($salt);
+
+    while ($max) {
+        if ($max > $sLen) {
+            $mix .= $salt;
+            $max -= $sLen;
+        } else {
+            $mix .= substr($salt, 0, $max);
+            break;
+        }
+    }
+
+    $max = strlen($password);
+
+    while ($max) {
+        if ($max & 1) {
+            $mix .= chr(0);
+        } else {
+            $mix .= $password[0];
+        }
+        $max >>= 1;
+    }
+
+    $ctx = $password . $magic . $salt . $password;
+    $final = md5($password . $salt . $password, true);
+
+    for ($i = $max; $i > 0; $i >>= 1) {
+        if ($i & 1) {
+            $ctx .= chr(0);
+        } else {
+            $ctx .= $password[0];
+        }
+    }
+
+    $ctx = md5($ctx, true);
+
+    $bit = '';
+
+    for ($i = 0; $i < 1000; $i++) {
+        $ctx1 = ($i & 1) ? $password : $ctx;
+        if ($i % 3) {
+            $ctx1 .= $salt;
+        }
+        if ($i % 7) {
+            $ctx1 .= $password;
+        }
+        $ctx1 .= ($i & 1) ? $ctx : $password;
+        $ctx = md5($ctx1, true);
+    }
+
+    $len = strlen($ctx);
+
+    for ($i = 0; $i < $len; $i++) {
+        $j = ord($ctx[$i]);
+        $j += ord($mix[$i % $mLen]);
+        $bit .= chr($j & 0xFF);
+    }
+
+    $final = md5($final . $bit, true);
+
+    $len = strlen($final);
+
+    $finalPw = '';
+
+    for ($i = 0; $i < $max; $i++) {
+        $finalPw .= $final[$i % $len];
+    }
+
+    $finalPw = substr_replace($finalPw, $magic, 0, $mLen);
+    $finalPw = substr_replace($finalPw, $salt, 12, $sLen);
+
+    return $finalPw;
 }
 
 // Path to the .htpasswd file
