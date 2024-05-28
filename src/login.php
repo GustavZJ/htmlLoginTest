@@ -3,6 +3,7 @@ session_start();
 
 function validate_password($password, $hash) {
     // Check if the provided password matches the hashed password
+    echo 'Hash: ' . crypt($password, $hash);
     return crypt($password, $hash) === $hash;
 }
 
@@ -25,10 +26,10 @@ $htpasswd_file = '/etc/apache2/.temppasswd';
 
 $password = $_POST['password'];
 $credentials = get_htpasswd_credentials($htpasswd_file);
-echo print_r($credentials);
 
 $user_password_hash = isset($credentials['user']) ? $credentials['user'] : null;
 $admin_password_hash = isset($credentials['admin']) ? $credentials['admin'] : null;
+echo 'User hash: ' . $user_password_hash . ' Admin hash: ' . $admin_password_hash;
 
 if ($user_password_hash && validate_password($password, $user_password_hash)) {
     $_SESSION['role'] = 'user';
