@@ -63,7 +63,7 @@ function get_htpasswd_credentials($file_path) {
 }
 
 // Path to the .htpasswd file
-$htpasswd_file = '/etc/apache2/.htpasswd';
+$htpasswd_file = '/etc/apache2/.temppasswd';
 
 $password = $_POST['password'];
 $credentials = get_htpasswd_credentials($htpasswd_file);
@@ -73,11 +73,11 @@ $admin_password_hash = isset($credentials['admin']) ? $credentials['admin'] : nu
 
 if ($user_password_hash && validate_apr1_md5($password, $user_password_hash)) {
     $_SESSION['role'] = 'user';
-    header('Location: /User/index.html');
+    header('Location: /main/index.html');
     exit;
 } elseif ($admin_password_hash && validate_apr1_md5($password, $admin_password_hash)) {
     $_SESSION['role'] = 'admin';
-    header('Location: /Admin/index.html');
+    header('Location: /main/index.html');
     exit;
 } else {
     echo "Invalid password.";
