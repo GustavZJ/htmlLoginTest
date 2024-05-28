@@ -31,11 +31,11 @@ $admin_password_hash = isset($credentials['admin']) ? $credentials['admin'] : nu
 
 if ($user_password_hash && validate_password($password, $user_password_hash)) {
     $_SESSION['role'] = 'user';
-    header('Location: /User/index.html');
+    header('Location: /main/index.html');
     exit;
 } elseif ($admin_password_hash && validate_password($password, $admin_password_hash)) {
     $_SESSION['role'] = 'admin';
-    header('Location: /Admin/index.html');
+    header('Location: /main/index.html');
     exit;
 } else {
     echo "Invalid password.";
