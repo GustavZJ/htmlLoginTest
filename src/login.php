@@ -34,6 +34,7 @@ function verify_apr_md5_password($password, $hash) {
     $salt = $hashParts[2];
     $expectedHash = $hashParts[3];
     $testHash = md5($password . $salt);
+    echo $testHash . ' | ' . $expectedHash;
 
     return $testHash === $expectedHash;
 }
