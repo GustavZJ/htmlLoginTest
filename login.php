@@ -35,13 +35,13 @@ try {
         // Check user credentials
         if (isset($credentials['user']) && password_verify($password, $credentials['user'])) {
             $_SESSION['role'] = 'user';
-            header('Location: /main/index.html');
+            header('Location: /main/index.php');
             exit;
         }
         // Check admin credentials
         elseif (isset($credentials['admin']) && password_verify($password, $credentials['admin'])) {
             $_SESSION['role'] = 'admin';
-            header('Location: /main/index.html');
+            header('Location: /main/index.php');
             exit;
         } else {
             echo "Invalid password.";
