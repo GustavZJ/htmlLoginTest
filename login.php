@@ -2,26 +2,18 @@
 session_start();
 
 function verifyPassword($password) {
-    $htpasswd_path = '/var/www/html/.htpasswd';
-    
-    if (!file_exists($htpasswd_path)) {
-        return false;
-    }
-    
-    $lines = file($htpasswd_path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-    
-    foreach ($lines as $line) {
-        list($user, $hash) = explode(':', $line, 2);
-        
-        // Extract salt from the existing hash
-        $salt = substr($hash, 0, strrpos($hash, '$') + 1);
+    // Hardcoded test user and hash
+    $test_user = 'admin';
+    $test_hash = '$apr1$Sfnd1SG.$THZiL/eydHJLFDiwfsWQL/';
 
-        // Verify the password
-        if (crypt($password, 'Sfnd1SG.') == '$apr1$Sfnd1SG.$THZiL/eydHJLFDiwfsWQL/') {
-            return $user;
-        }
+    // Extract salt from the existing hash
+    $salt = substr($test_hash, 0, strrpos($test_hash, '$') + 1);
+
+    // Verify the password using the extracted salt
+    if (crypt($password, $salt) == $test_hash) {
+        return $test_user;
     }
-    
+
     return false;
 }
 
