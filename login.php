@@ -2,7 +2,7 @@
 session_start();
 
 function verifyPassword($password) {
-    $htpasswd_path = '/etc/apache2/.htpasswd';
+    $htpasswd_path = '/var/www/html/.htpasswd';
     
     if (!file_exists($htpasswd_path)) {
         return false;
@@ -13,7 +13,7 @@ function verifyPassword($password) {
     foreach ($lines as $line) {
         list($user, $hash) = explode(':', $line, 2);
         
-        if (password_verify($password, $hash)) {
+        if (crypt($password, $hash) == $hash) {
             return $user;
         }
     }
@@ -31,9 +31,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $_SESSION['user'] = $user;
         
         if ($user === 'admin') {
-            header("Location: /main/index.html");
+            header("Location: /Admin/index.php");
         } else {
-            header("Location: /main/index.html");
+            header("Location: /User/index.php");
         }
         exit();
     } else {
