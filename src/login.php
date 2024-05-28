@@ -4,20 +4,16 @@ session_start();
 // Function to read the .htpasswd file and return an associative array of username => hashed_password
 function get_htpasswd_credentials($file_path) {
     if (!file_exists($file_path)) {
-        // Log an error message for debugging purposes
-        error_log("The file $file_path does not exist.");
-        return [];
+        throw new Exception("The file $file_path does not exist.");
+    }
+    
+    $lines = file($file_path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+
+    if ($lines === false) {
+        throw new Exception("Failed to open the file $file_path.");
     }
 
     $credentials = [];
-    $lines = @file($file_path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-
-    if ($lines === false) {
-        // Log an error message for debugging purposes
-        error_log("Failed to read the file $file_path.");
-        return [];
-    }
-
     foreach ($lines as $line) {
         if (strpos($line, ':') !== false) {
             list($username, $hash) = explode(':', $line, 2);
@@ -28,24 +24,41 @@ function get_htpasswd_credentials($file_path) {
     return $credentials;
 }
 
-// Path to the .htpasswd file
-$htpasswd_file = '/etc/apache2/.htpasswd';  // Ensure this is the correct path
+// Function to verify password using apr_md5
+function verify_apr_md5_password($password, $hash) {
+    $hashParts = explode('$', $hash);
+    if (count($hashParts) != 4 || $hashParts[1] != 'apr1') {
+        return false;
+    }
+    
+    $salt = $hashParts[2];
+    $expectedHash = $hashParts[3];
+    $testHash = md5($password . $salt);
 
-$password = $_POST['password'] ?? '';
-$credentials = get_htpasswd_credentials($htpasswd_file);
-
-$user_password_hash = $credentials['user'] ?? null;
-$admin_password_hash = $credentials['admin'] ?? null;
-
-if ($user_password_hash && password_verify($password, $user_password_hash)) {
-    $_SESSION['role'] = 'user';
-    header('Location: /main/index.html');
-    exit;
-} elseif ($admin_password_hash && password_verify($password, $admin_password_hash)) {
-    $_SESSION['role'] = 'admin';
-    header('Location: /main/index.html');
-    exit;
-} else {
-    echo "Invalid password.";
+    return $testHash === $expectedHash;
 }
-?>
+
+// Path to the .htpasswd file
+$htpasswd_file = '/etc/apache2/.htpasswd';
+
+try {
+    $password = $_POST['password'];
+    $credentials = get_htpasswd_credentials($htpasswd_file);
+
+    $user_password_hash = isset($credentials['uploader']) ? $credentials['uploader'] : null;
+    $admin_password_hash = isset($credentials['admin']) ? $credentials['admin'] : null;
+
+    if ($user_password_hash && verify_apr_md5_password($password, $user_password_hash)) {
+        $_SESSION['role'] = 'uploader';
+        header('Location: /main/index.html');
+        exit;
+    } elseif ($admin_password_hash && verify_apr_md5_password($password, $admin_password_hash)) {
+        $_SESSION['role'] = 'admin';
+        header('Location: /main/index.html');
+        exit;
+    } else {
+        echo "Invalid password.";
+    }
+} catch (Exception $e) {
+    echo $e->getMessage();
+}
