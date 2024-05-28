@@ -2,7 +2,7 @@
 session_start();
 
 function verifyPassword($password) {
-    $htpasswd_path = '/var/www/html/.htpasswd';
+    $htpasswd_path = '/etc/apache2/.htpasswd';
     
     if (!file_exists($htpasswd_path)) {
         return false;
@@ -31,9 +31,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $_SESSION['user'] = $user;
         
         if ($user === 'admin') {
-            header("Location: /Admin/index.html");
+            header("Location: /main/index.html");
         } else {
-            header("Location: /User/index.html");
+            header("Location: /main/index.html");
         }
         exit();
     } else {
