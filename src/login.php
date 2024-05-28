@@ -29,6 +29,7 @@ function verify_apr1_md5_password($password, $hashed_password) {
     $passParts = explode('$', $hashed_password);
     $salt = $passParts[2];
     $hashed = crypt_apr1_md5($password, $salt);
+    echo 'Passparts: '.$passParts.'<br>';
     echo 'Password: '.$password.'<br>';
     echo 'Salt: '.$salt.'<br>';
     echo 'Hash: '.$hashed.'<br>';
@@ -39,6 +40,7 @@ function verify_apr1_md5_password($password, $hashed_password) {
 // Your custom function to generate apr1-md5 hash
 function crypt_apr1_md5($password, $salt) {
     $salt = '$apr1$' . $salt . '$';
+    echo 'Get salt: '.$salt.'<br>';
     return crypt($password, $salt);
 }
 
