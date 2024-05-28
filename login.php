@@ -13,7 +13,11 @@ function verifyPassword($password) {
     foreach ($lines as $line) {
         list($user, $hash) = explode(':', $line, 2);
         
-        if (crypt($password, $hash) == $hash) {
+        // Extract salt from the existing hash
+        $salt = substr($hash, 0, strrpos($hash, '$') + 1);
+
+        // Verify the password
+        if (crypt($password, $salt) == $hash) {
             return $user;
         }
     }
