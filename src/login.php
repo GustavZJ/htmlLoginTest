@@ -1,28 +1,42 @@
 <?php
-// Check if password is set and not empty
-if(isset($_POST['password']) && !empty($_POST['password'])) {
+session_start();
+
+function verifyPassword($password) {
+    $htpasswd_path = '/var/www/html/.htpasswd';
+    
+    if (!file_exists($htpasswd_path)) {
+        return false;
+    }
+    
+    $lines = file($htpasswd_path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+    
+    foreach ($lines as $line) {
+        list($user, $hash) = explode(':', $line, 2);
+        
+        if (password_verify($password, $hash)) {
+            return $user;
+        }
+    }
+    
+    return false;
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $password = $_POST['password'];
     
-    // Hash the password using apr1_MD5
-    $hashed_password = crypt($password, '$apr1$');
-
-    // Check if the hashed password matches the one stored in .htpasswd
-    if($hashed_password === file_get_contents('/etc/apache2/.htpasswd')) {
-        // Password is correct, redirect based on user role
-        if ($password === 'admin_password') {
-            header('Location: /main/');
+    $user = verifyPassword($password);
+    
+    if ($user) {
+        $_SESSION['authenticated'] = true;
+        $_SESSION['user'] = $user;
+        
+        if ($user === 'admin') {
+            header("Location: /Admin/index.html");
         } else {
-            header('Location: /user');
+            header("Location: /User/index.html");
         }
-        exit;
+        exit();
     } else {
-        // Incorrect password, redirect back to login page
-        header('Location: index.html');
-        exit;
+        echo "<p>Invalid password</p>";
     }
-} else {
-    // No password provided, redirect back to login page
-    header('Location: index.html');
-    exit;
 }
-?>
