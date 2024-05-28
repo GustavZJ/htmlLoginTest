@@ -3,8 +3,8 @@ session_start();
 
 function validate_password($password, $hash) {
     // Check if the provided password matches the hashed password
-    echo 'Hash: ' . crypt($password, $hash);
-    return crypt($password, $hash) === $hash;
+    echo 'Hash: ' . md5($password);
+    return md5($password) === $hash;
 }
 
 function get_htpasswd_credentials($file_path) {
