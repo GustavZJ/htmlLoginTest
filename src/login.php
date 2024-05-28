@@ -17,7 +17,7 @@ function get_htpasswd_credentials($file_path) {
 }
 
 // Path to the .htpasswd file
-$htpasswd_file = '/etc/apache2/.testpasswd';
+$htpasswd_file = '/etc/apache2/.htpasswd';
 
 $password = $_POST['password'];
 $credentials = get_htpasswd_credentials($htpasswd_file);
